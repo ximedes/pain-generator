@@ -14,6 +14,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import com.chessix.sepa.pain.util.DocumentUtils;
 
 /**
  * Main implementation for generating PAIN files.
@@ -73,10 +74,16 @@ public class DocumentServiceImpl implements DocumentService {
         }
     }
 
+    @Override
+    public void generatePain00100103(OutputStream outputStream, InitiatingParty initiatingParty, Debtor debtor, List<Transaction> transactions, Date executionDate) {
+        String paymentInfoId = DocumentUtils.createUniqueId();
+        generatePain00100103(outputStream, initiatingParty, debtor, transactions, executionDate, paymentInfoId);
+    }
+
 	@Override
-	public void generatePain00100103(OutputStream outputStream, InitiatingParty initiatingParty, Debtor debtor, List<Transaction> transactions, Date executionDate) {
-		Pain00100103 pain00100103 = new Pain00100103(initiatingParty, debtor, transactions, executionDate);
-		try {
+	public void generatePain00100103(OutputStream outputStream, InitiatingParty initiatingParty, Debtor debtor, List<Transaction> transactions, Date executionDate, String paymentInfoId) {
+		Pain00100103 pain00100103 = new Pain00100103(initiatingParty, debtor, transactions, executionDate, paymentInfoId);
+        try {
 			pain00100103.generate(outputStream);
 		} catch (JAXBException e) {
 			throw new IllegalStateException(EXCEPTION_MESSAGE, e);

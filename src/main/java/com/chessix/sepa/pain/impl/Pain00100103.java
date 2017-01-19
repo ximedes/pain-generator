@@ -39,12 +39,14 @@ public class Pain00100103 {
 	private Debtor debtor;
 	private Date executionDate;
 	private List<Transaction> transactions;
+    private String paymentInfoId;
 
-	public Pain00100103(InitiatingParty initiatingParty, Debtor debtor, List<Transaction> transactions, Date executionDate) {
+	public Pain00100103(InitiatingParty initiatingParty, Debtor debtor, List<Transaction> transactions, Date executionDate, String paymentInfoId) {
 		this.initiatingParty = initiatingParty;
 		this.transactions = transactions;
 		this.debtor = debtor;
 		this.executionDate = executionDate;
+		this.paymentInfoId = paymentInfoId;
 		initializeDocument();
 	}
 
@@ -74,7 +76,7 @@ public class Pain00100103 {
 
 		// Payment Information
 		PaymentInstructionInformation3 pi = new PaymentInstructionInformation3();
-		pi.setPmtInfId(DocumentUtils.createUniqueId());
+		pi.setPmtInfId(paymentInfoId);
 		pi.setPmtMtd(PaymentMethod3Code.TRF);
 		PaymentTypeInformation19 pti = new PaymentTypeInformation19();
 		ServiceLevel8Choice serviceLevel8Choice = new ServiceLevel8Choice();
