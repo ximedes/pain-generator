@@ -43,7 +43,7 @@ public interface DocumentService {
      * See {@link #generatePain00100103(OutputStream, InitiatingParty, Debtor, List, Date, String)}, but with an additional
      * paymentInfoId parameter which gets stored in the PmtInfId element of the pain 001 file.
      */
-    public void generatePain00100103(OutputStream outputStream, InitiatingParty initiatingParty, Debtor debtor, List<Transaction> transactions, Date executionDate, String paymentInfoId);
+    public void generatePain00100103(OutputStream outputStream, InitiatingParty initiatingParty, Debtor debtor, List<Transaction> transactions, Date executionDate, String paymentInfoId, Dialect dialect);
 
 
 }

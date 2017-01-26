@@ -1,6 +1,7 @@
 package com.chessix.sepa.pain.impl;
 
 import com.chessix.sepa.pain.*;
+import com.chessix.sepa.pain.util.DocumentUtils;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -14,7 +15,6 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Date;
 import java.util.List;
-import com.chessix.sepa.pain.util.DocumentUtils;
 
 /**
  * Main implementation for generating PAIN files.
