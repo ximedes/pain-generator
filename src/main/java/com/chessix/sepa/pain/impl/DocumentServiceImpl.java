@@ -14,6 +14,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Date;
 import java.util.List;
+import com.chessix.sepa.pain.util.DocumentUtils;
 
 /**
  * Main implementation for generating PAIN files.
@@ -73,10 +74,16 @@ public class DocumentServiceImpl implements DocumentService {
         }
     }
 
+    @Override
+    public void generatePain00100103(OutputStream outputStream, InitiatingParty initiatingParty, Debtor debtor, List<Transaction> transactions, Date executionDate, Dialect dialect) {
+        String paymentInfoId = DocumentUtils.createUniqueId();
+        generatePain00100103(outputStream, initiatingParty, debtor, transactions, executionDate, paymentInfoId, dialect);
+    }
+
 	@Override
-	public void generatePain00100103(OutputStream outputStream, InitiatingParty initiatingParty, Debtor debtor, List<Transaction> transactions, Date executionDate, Dialect dialect) {
-		Pain00100103 pain00100103 = new Pain00100103(initiatingParty, debtor, transactions, executionDate, dialect);
-		try {
+	public void generatePain00100103(OutputStream outputStream, InitiatingParty initiatingParty, Debtor debtor, List<Transaction> transactions, Date executionDate, String paymentInfoId, Dialect dialect) {
+		Pain00100103 pain00100103 = new Pain00100103(initiatingParty, debtor, transactions, executionDate, paymentInfoId, dialect);
+        try {
 			pain00100103.generate(outputStream);
 		} catch (JAXBException e) {
 			throw new IllegalStateException(EXCEPTION_MESSAGE, e);
