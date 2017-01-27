@@ -30,7 +30,7 @@ public class DocumentUtils {
      * Returns a XMLGregorianCalender (xml:dateTime) in UTC
      *
      * @param date the date to convert
-     * @return dateTime in UTC e.g. 2012-03-14T12:34.567Z
+     * @return dateTime in UTC e.g. 2012-03-14T12:34:56.789Z
      */
     public static XMLGregorianCalendar toXmlDateTimeUTC(Date date) {
         if (date != null) {

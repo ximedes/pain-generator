@@ -1,8 +1,6 @@
 package com.chessix.sepa.pain.impl;
 
-import com.chessix.sepa.pain.Debtor;
-import com.chessix.sepa.pain.InitiatingParty;
-import com.chessix.sepa.pain.Transaction;
+import com.chessix.sepa.pain.*;
 import com.chessix.sepa.pain.util.DocumentUtils;
 import generated.pain00100103.AccountIdentification4Choice;
 import generated.pain00100103.ActiveOrHistoricCurrencyAndAmount;
@@ -39,12 +37,18 @@ public class Pain00100103 {
 	private Debtor debtor;
 	private Date executionDate;
 	private List<Transaction> transactions;
+    private String paymentInfoId;
 
-	public Pain00100103(InitiatingParty initiatingParty, Debtor debtor, List<Transaction> transactions, Date executionDate) {
+	private DialectHandler dialectHandler;
+
+	public Pain00100103(InitiatingParty initiatingParty, Debtor debtor, List<Transaction> transactions, Date executionDate, String paymentInfoId, Dialect dialect) {
 		this.initiatingParty = initiatingParty;
 		this.transactions = transactions;
 		this.debtor = debtor;
 		this.executionDate = executionDate;
+		this.paymentInfoId = paymentInfoId;
+
+		dialectHandler = new DialectHandler(dialect);
 		initializeDocument();
 	}
 
@@ -65,7 +69,7 @@ public class Pain00100103 {
 		// Group Header
 		GroupHeader32 hdr = new GroupHeader32();
 		hdr.setMsgId(DocumentUtils.createUniqueId());
-		hdr.setCreDtTm(DocumentUtils.toXmlDateTimeUTC(new Date()));
+		hdr.setCreDtTm(dialectHandler.getCreDtTm(new Date()));
 		hdr.setNbOfTxs("" + transactions.size());
 		PartyIdentification32 party = new PartyIdentification32();
 		party.setNm(initiatingParty.getName());
@@ -74,7 +78,7 @@ public class Pain00100103 {
 
 		// Payment Information
 		PaymentInstructionInformation3 pi = new PaymentInstructionInformation3();
-		pi.setPmtInfId(DocumentUtils.createUniqueId());
+		pi.setPmtInfId(paymentInfoId);
 		pi.setPmtMtd(PaymentMethod3Code.TRF);
 		PaymentTypeInformation19 pti = new PaymentTypeInformation19();
 		ServiceLevel8Choice serviceLevel8Choice = new ServiceLevel8Choice();

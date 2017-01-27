@@ -1,12 +1,8 @@
 package com.chessix.sepa.pain.impl;
 
 import com.chessix.sepa.pain.*;
+import com.chessix.sepa.pain.util.DocumentUtils;
 
-import java.io.OutputStream;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.Date;
-import java.util.List;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -14,6 +10,11 @@ import javax.xml.bind.Marshaller;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.OutputStream;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Main implementation for generating PAIN files.
@@ -48,8 +49,8 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public String generatePain00800102(Creditor creditor, InitiatingParty initiatingParty, FirstTransactions firstTransactions, RecurringTransactions recurringTransactions) {
-        Pain00800102 pain00800102 = new Pain00800102(creditor, initiatingParty, firstTransactions, recurringTransactions);
+    public String generatePain00800102(Creditor creditor, InitiatingParty initiatingParty, FirstTransactions firstTransactions, RecurringTransactions recurringTransactions, boolean useBatchBooking, Dialect dialect) {
+        Pain00800102 pain00800102 = new Pain00800102(creditor, initiatingParty, firstTransactions, recurringTransactions, useBatchBooking, dialect);
         StringWriter writer = new StringWriter();
         try {
             generate(pain00800102.createDocument(), writer);
@@ -62,8 +63,8 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public void generatePain00800102(OutputStream outputStream, Creditor creditor, InitiatingParty initiatingParty, FirstTransactions firstTransactions, RecurringTransactions recurringTransactions) {
-        Pain00800102 pain00800102 = new Pain00800102(creditor, initiatingParty, firstTransactions, recurringTransactions);
+    public void generatePain00800102(OutputStream outputStream, Creditor creditor, InitiatingParty initiatingParty, FirstTransactions firstTransactions, RecurringTransactions recurringTransactions, boolean useBatchBooking, Dialect dialect) {
+        Pain00800102 pain00800102 = new Pain00800102(creditor, initiatingParty, firstTransactions, recurringTransactions,useBatchBooking, dialect);
         try {
             generate(pain00800102.createDocument(), outputStream);
         } catch (JAXBException e) {
@@ -73,10 +74,16 @@ public class DocumentServiceImpl implements DocumentService {
         }
     }
 
+    @Override
+    public void generatePain00100103(OutputStream outputStream, InitiatingParty initiatingParty, Debtor debtor, List<Transaction> transactions, Date executionDate, Dialect dialect) {
+        String paymentInfoId = DocumentUtils.createUniqueId();
+        generatePain00100103(outputStream, initiatingParty, debtor, transactions, executionDate, paymentInfoId, dialect);
+    }
+
 	@Override
-	public void generatePain00100103(OutputStream outputStream, InitiatingParty initiatingParty, Debtor debtor, List<Transaction> transactions, Date executionDate) {
-		Pain00100103 pain00100103 = new Pain00100103(initiatingParty, debtor, transactions, executionDate);
-		try {
+	public void generatePain00100103(OutputStream outputStream, InitiatingParty initiatingParty, Debtor debtor, List<Transaction> transactions, Date executionDate, String paymentInfoId, Dialect dialect) {
+		Pain00100103 pain00100103 = new Pain00100103(initiatingParty, debtor, transactions, executionDate, paymentInfoId, dialect);
+        try {
 			pain00100103.generate(outputStream);
 		} catch (JAXBException e) {
 			throw new IllegalStateException(EXCEPTION_MESSAGE, e);

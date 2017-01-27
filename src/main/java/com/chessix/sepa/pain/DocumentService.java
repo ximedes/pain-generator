@@ -23,23 +23,27 @@ public interface DocumentService {
      */
     public void generatePain00800202(OutputStream outputStream, Creditor creditor, InitiatingParty initiatingParty, FirstTransactions firstTransactions, RecurringTransactions recurringTransactions);
 
-
     /**
      * Generates a PAIN.008.001.02 string
      * @return a formatted String containing the PAIN008.02.02 xml
      */
-    public String generatePain00800102(Creditor creditor, InitiatingParty initiatingParty, FirstTransactions firstTransactions, RecurringTransactions recurringTransactions);
-
+    public String generatePain00800102(Creditor creditor, InitiatingParty initiatingParty, FirstTransactions firstTransactions, RecurringTransactions recurringTransactions, boolean useBatchBooking, Dialect dialect);
 
     /**
      * Writes a PAIN.008.001.02 to the specified OutputStream. Will not close the stream.
      */
-    public void generatePain00800102(OutputStream outputStream, Creditor creditor, InitiatingParty initiatingParty, FirstTransactions firstTransactions, RecurringTransactions recurringTransactions);
+    public void generatePain00800102(OutputStream outputStream, Creditor creditor, InitiatingParty initiatingParty, FirstTransactions firstTransactions, RecurringTransactions recurringTransactions, boolean useBatchBooking, Dialect dialect);
 
-	/**
-	 * Writes a PAIN.001.001.03 to the specified OutputStream. Will not close the stream.
-	 */
-	public void generatePain00100103(OutputStream outputStream, InitiatingParty initiatingParty, Debtor debtor, List<Transaction> transactions, Date executionDate);
+        /**
+         * Writes a PAIN.001.001.03 to the specified OutputStream. Will not close the stream.
+         */
+	public void generatePain00100103(OutputStream outputStream, InitiatingParty initiatingParty, Debtor debtor, List<Transaction> transactions, Date executionDate, Dialect dialect);
+
+    /**
+     * See {@link #generatePain00100103(OutputStream, InitiatingParty, Debtor, List, Date, String)}, but with an additional
+     * paymentInfoId parameter which gets stored in the PmtInfId element of the pain 001 file.
+     */
+    public void generatePain00100103(OutputStream outputStream, InitiatingParty initiatingParty, Debtor debtor, List<Transaction> transactions, Date executionDate, String paymentInfoId, Dialect dialect);
 
 
 }

@@ -1,10 +1,6 @@
 package com.chessix.sepa.pain.impl;
 
-import com.chessix.sepa.pain.Creditor;
-import com.chessix.sepa.pain.FirstTransactions;
-import com.chessix.sepa.pain.InitiatingParty;
-import com.chessix.sepa.pain.RecurringTransactions;
-import com.chessix.sepa.pain.Transaction;
+import com.chessix.sepa.pain.*;
 import com.chessix.sepa.pain.util.DocumentUtils;
 import generated.pain00800102.AccountIdentification4Choice;
 import generated.pain00800102.ActiveOrHistoricCurrencyAndAmount;
@@ -48,18 +44,23 @@ public class Pain00800102 {
     private String messageId;
     private FirstTransactions firstTransactions;
     private RecurringTransactions recurringTransactions;
+    private boolean useBatchBooking;
 
+    private DialectHandler dialectHandler;
 
-    Pain00800102(Creditor creditor, InitiatingParty initiatingParty, FirstTransactions firstTransactions, RecurringTransactions recurringTransactions) {
-        this(creditor, initiatingParty, firstTransactions, recurringTransactions, DocumentUtils.createUniqueId());
+    Pain00800102(Creditor creditor, InitiatingParty initiatingParty, FirstTransactions firstTransactions, RecurringTransactions recurringTransactions, boolean useBatchBooking, Dialect dialect) {
+        this(creditor, initiatingParty, firstTransactions, recurringTransactions, DocumentUtils.createUniqueId(), useBatchBooking, dialect);
     }
 
-    Pain00800102(Creditor creditor, InitiatingParty initiatingParty, FirstTransactions firstTransactions, RecurringTransactions recurringTransactions, String messageId) {
+    Pain00800102(Creditor creditor, InitiatingParty initiatingParty, FirstTransactions firstTransactions, RecurringTransactions recurringTransactions, String messageId, boolean useBatchBooking, Dialect dialect) {
         this.creditor = creditor;
         this.messageId = messageId;
         this.initiatingParty = initiatingParty;
         this.firstTransactions = firstTransactions;
         this.recurringTransactions = recurringTransactions;
+        this.useBatchBooking = useBatchBooking;
+
+        dialectHandler = new DialectHandler(dialect);
     }
 
     JAXBElement createDocument() {
@@ -90,7 +91,7 @@ public class Pain00800102 {
 
     private PaymentInstructionInformation4 createPaymentInstructionInformation(boolean first, List<Transaction> transactions, Creditor creditor, Date collectionDate) {
         PaymentInstructionInformation4 paymentInstructionInformation = new PaymentInstructionInformation4();
-        paymentInstructionInformation.setBtchBookg(Boolean.FALSE);
+        paymentInstructionInformation.setBtchBookg(useBatchBooking);
         paymentInstructionInformation.setPmtInfId(DocumentUtils.createUniqueId());
         paymentInstructionInformation.setPmtMtd(PaymentMethod2Code.DD);
         PaymentTypeInformation20 paymentTypeInformation = new PaymentTypeInformation20();
@@ -203,7 +204,7 @@ public class Pain00800102 {
     private GroupHeader39 createHeader() {
         GroupHeader39 groupHeader = new GroupHeader39();
         groupHeader.setMsgId(messageId);
-        groupHeader.setCreDtTm(DocumentUtils.toXmlDateTimeUTC(new Date()));
+        groupHeader.setCreDtTm(dialectHandler.getCreDtTm(new Date()));
         int tx = 0;
         if (firstTransactions != null) {
             tx += firstTransactions.getTransactions().size();
