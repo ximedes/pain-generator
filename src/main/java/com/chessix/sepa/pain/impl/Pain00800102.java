@@ -38,26 +38,24 @@ import java.util.List;
 
 public class Pain00800102 {
 
-    private Creditor creditor;
-    private InitiatingParty initiatingParty;
+    private final Creditor creditor;
+    private final InitiatingParty initiatingParty;
     private Document document;
-    private String messageId;
-    private FirstTransactions firstTransactions;
-    private RecurringTransactions recurringTransactions;
-    private boolean useBatchBooking;
+    private final String messageId;
+    private final List<TransactionBatch> subBatches;
+    private final boolean useBatchBooking;
 
-    private DialectHandler dialectHandler;
+    private final DialectHandler dialectHandler;
 
-    Pain00800102(Creditor creditor, InitiatingParty initiatingParty, FirstTransactions firstTransactions, RecurringTransactions recurringTransactions, boolean useBatchBooking, Dialect dialect) {
-        this(creditor, initiatingParty, firstTransactions, recurringTransactions, DocumentUtils.createUniqueId(), useBatchBooking, dialect);
+    Pain00800102(Creditor creditor, InitiatingParty initiatingParty, List<TransactionBatch> subBatches, boolean useBatchBooking, Dialect dialect) {
+        this(creditor, initiatingParty, subBatches, DocumentUtils.createUniqueId(), useBatchBooking, dialect);
     }
 
-    Pain00800102(Creditor creditor, InitiatingParty initiatingParty, FirstTransactions firstTransactions, RecurringTransactions recurringTransactions, String messageId, boolean useBatchBooking, Dialect dialect) {
+    Pain00800102(Creditor creditor, InitiatingParty initiatingParty, List<TransactionBatch> subBatches, String messageId, boolean useBatchBooking, Dialect dialect) {
         this.creditor = creditor;
         this.messageId = messageId;
         this.initiatingParty = initiatingParty;
-        this.firstTransactions = firstTransactions;
-        this.recurringTransactions = recurringTransactions;
+        this.subBatches = subBatches;
         this.useBatchBooking = useBatchBooking;
 
         dialectHandler = new DialectHandler(dialect);
@@ -73,19 +71,21 @@ public class Pain00800102 {
         CustomerDirectDebitInitiationV02 customerDirectDebitInitiationV02 = new CustomerDirectDebitInitiationV02();
         customerDirectDebitInitiationV02.setGrpHdr(createHeader());
 
-        customerDirectDebitInitiationV02.getPmtInf().addAll(createPayments(creditor, firstTransactions, recurringTransactions));
+        customerDirectDebitInitiationV02.getPmtInf().addAll(createPayments(creditor, subBatches));
 
         document.setCstmrDrctDbtInitn(customerDirectDebitInitiationV02);
     }
 
-    private List<PaymentInstructionInformation4> createPayments(Creditor creditor, FirstTransactions firstTransactions, RecurringTransactions recurringTransactions) {
+    private List<PaymentInstructionInformation4> createPayments(Creditor creditor, List<TransactionBatch> batches) {
         List<PaymentInstructionInformation4> result = new ArrayList<PaymentInstructionInformation4>();
-        if (firstTransactions != null) {
-            result.add(createPaymentInstructionInformation(true, firstTransactions.getTransactions(), creditor, firstTransactions.getCollectionDate()));
-        }
-        if (recurringTransactions != null) {
-            result.add(createPaymentInstructionInformation(false, recurringTransactions.getTransactions(), creditor, recurringTransactions.getCollectionDate()));
-        }
+        batches.stream().filter(batch -> batch instanceof FirstTransactions)
+                .forEach(firstTransactions -> {
+                    result.add(createPaymentInstructionInformation(true, firstTransactions.getTransactions(), creditor, firstTransactions.getCollectionDate()));
+                });
+        batches.stream().filter(batch -> batch instanceof RecurringTransactions)
+                .forEach(recurringTransactions -> {
+                    result.add(createPaymentInstructionInformation(false, recurringTransactions.getTransactions(), creditor, recurringTransactions.getCollectionDate()));
+                });
         return result;
     }
 
@@ -206,12 +206,10 @@ public class Pain00800102 {
         groupHeader.setMsgId(messageId);
         groupHeader.setCreDtTm(dialectHandler.getCreDtTm(new Date()));
         int tx = 0;
-        if (firstTransactions != null) {
-            tx += firstTransactions.getTransactions().size();
-        }
-        if (recurringTransactions != null) {
-            tx += recurringTransactions.getTransactions().size();
-        }
+
+        tx += subBatches.stream()
+                .mapToLong(batch -> batch.getTransactions().size())
+                .sum();
         groupHeader.setNbOfTxs("" + tx);
         groupHeader.setCtrlSum(calculateControlSum());
         groupHeader.setInitgPty(createPartyIdentification());
@@ -219,18 +217,11 @@ public class Pain00800102 {
     }
 
     private BigDecimal calculateControlSum() {
-        BigDecimal total = new BigDecimal(0).setScale(2, RoundingMode.HALF_UP);
-        if (firstTransactions != null) {
-            for (Transaction t : firstTransactions.getTransactions()) {
-                total = total.add(t.getAmount());
-            }
-        }
-        if (recurringTransactions != null) {
-            for (Transaction t : recurringTransactions.getTransactions()) {
-                total = total.add(t.getAmount());
-            }
-        }
-        return total;
+        return subBatches.stream()
+                .flatMap(batch -> batch.getTransactions().stream())
+                .map(Transaction::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
     }
 
     private PartyIdentification32 createPartyIdentification() {

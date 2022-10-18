@@ -63,7 +63,7 @@ public class DocumentServiceTest {
 	@Test
 	public void testGeneratePain00800102() throws Exception {
 		Transaction t = new Transaction(100.00 * 2, null, "s", null);// abuse Transaction to get same rounding as used for control sum
-		String result = documentService.generatePain00800102(createCreditor(), createInitiatingParty(), firstTransactions, recurringTransactions, false, Dialect.DEFAULT);
+		String result = documentService.generatePain00800102(createCreditor(), createInitiatingParty(), List.of(firstTransactions, recurringTransactions), false, Dialect.DEFAULT);
 		xPathFactory = XPathFactory.newInstance();
 		XPath xPath = xPathFactory.newXPath();
 		String txCount = xPath.evaluate("//*[name()='NbOfTxs']", new InputSource(new StringReader(result)));
@@ -90,7 +90,7 @@ public class DocumentServiceTest {
 	@Test
 	public void testGeneratePain00800102FirstOnly() throws Exception {
 		Transaction t = new Transaction(100.00 * 1, null, "s", null);// abuse Transaction to get same rounding as used for control sum
-		String result = documentService.generatePain00800102(createCreditor(), createInitiatingParty(), firstTransactions, null, false, Dialect.DEFAULT);
+		String result = documentService.generatePain00800102(createCreditor(), createInitiatingParty(), List.of(firstTransactions), false, Dialect.DEFAULT);
 		xPathFactory = XPathFactory.newInstance();
 		XPath xPath = xPathFactory.newXPath();
 		String txCount = xPath.evaluate("//*[name()='NbOfTxs']", new InputSource(new StringReader(result)));
@@ -116,7 +116,7 @@ public class DocumentServiceTest {
 	@Test
 	public void testGeneratePain00800102WithBatchBooking() throws Exception {
 		Transaction t = new Transaction(100.00 * 1, null, "s", null);// abuse Transaction to get same rounding as used for control sum
-		String result = documentService.generatePain00800102(createCreditor(), createInitiatingParty(), null, recurringTransactions, true, Dialect.DEFAULT);
+		String result = documentService.generatePain00800102(createCreditor(), createInitiatingParty(), List.of(recurringTransactions), true, Dialect.DEFAULT);
 		xPathFactory = XPathFactory.newInstance();
 		XPath xPath = xPathFactory.newXPath();
 		String batchBooking = xPath.evaluate("//*[name()='BtchBookg']", new InputSource(new StringReader(result)));
@@ -127,7 +127,7 @@ public class DocumentServiceTest {
 	@Test
 	public void testGeneratePain00800102WithoutBatchBooking() throws Exception {
 		Transaction t = new Transaction(100.00 * 1, null, "s", null);// abuse Transaction to get same rounding as used for control sum
-		String result = documentService.generatePain00800102(createCreditor(), createInitiatingParty(), null, recurringTransactions, false, Dialect.DEFAULT);
+		String result = documentService.generatePain00800102(createCreditor(), createInitiatingParty(), List.of(recurringTransactions), false, Dialect.DEFAULT);
 		xPathFactory = XPathFactory.newInstance();
 		XPath xPath = xPathFactory.newXPath();
 		String batchBooking = xPath.evaluate("//*[name()='BtchBookg']", new InputSource(new StringReader(result)));
@@ -138,7 +138,7 @@ public class DocumentServiceTest {
     @Test
     public void testGeneratePain00800102RecurringOnly() throws Exception {
         Transaction t = new Transaction(100.00 * 1, null, "s", null);// abuse Transaction to get same rounding as used for control sum
-        String result = documentService.generatePain00800102(createCreditor(), createInitiatingParty(), null, recurringTransactions,false, Dialect.DEFAULT);
+        String result = documentService.generatePain00800102(createCreditor(), createInitiatingParty(), List.of(recurringTransactions), false, Dialect.DEFAULT);
         xPathFactory = XPathFactory.newInstance();
         XPath xPath = xPathFactory.newXPath();
         String txCount = xPath.evaluate("//*[name()='NbOfTxs']", new InputSource(new StringReader(result)));
