@@ -1,5 +1,7 @@
 package com.chessix.sepa.pain;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -30,5 +32,9 @@ public abstract class TransactionBatch {
      */
     public void setCollectionDate(Date collectionDate) {
         this.collectionDate = collectionDate;
+    }
+
+    public void setCollectionDate(LocalDate collectionDate) {
+        this.collectionDate = Date.from(collectionDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 }

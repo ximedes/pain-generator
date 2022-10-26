@@ -49,8 +49,8 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public String generatePain00800102(Creditor creditor, InitiatingParty initiatingParty, FirstTransactions firstTransactions, RecurringTransactions recurringTransactions, boolean useBatchBooking, Dialect dialect) {
-        Pain00800102 pain00800102 = new Pain00800102(creditor, initiatingParty, firstTransactions, recurringTransactions, useBatchBooking, dialect);
+    public String generatePain00800102(Creditor creditor, InitiatingParty initiatingParty, List<TransactionBatch> subBatches, boolean useBatchBooking, Dialect dialect) {
+        Pain00800102 pain00800102 = new Pain00800102(creditor, initiatingParty, subBatches, useBatchBooking, dialect);
         StringWriter writer = new StringWriter();
         try {
             generate(pain00800102.createDocument(), writer);
@@ -64,7 +64,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public void generatePain00800102(OutputStream outputStream, Creditor creditor, InitiatingParty initiatingParty, FirstTransactions firstTransactions, RecurringTransactions recurringTransactions, boolean useBatchBooking, Dialect dialect) {
-        Pain00800102 pain00800102 = new Pain00800102(creditor, initiatingParty, firstTransactions, recurringTransactions,useBatchBooking, dialect);
+        Pain00800102 pain00800102 = new Pain00800102(creditor, initiatingParty, List.of(firstTransactions, recurringTransactions),useBatchBooking, dialect);
         try {
             generate(pain00800102.createDocument(), outputStream);
         } catch (JAXBException e) {

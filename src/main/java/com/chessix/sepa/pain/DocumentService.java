@@ -27,7 +27,7 @@ public interface DocumentService {
      * Generates a PAIN.008.001.02 string
      * @return a formatted String containing the PAIN008.02.02 xml
      */
-    public String generatePain00800102(Creditor creditor, InitiatingParty initiatingParty, FirstTransactions firstTransactions, RecurringTransactions recurringTransactions, boolean useBatchBooking, Dialect dialect);
+    public String generatePain00800102(Creditor creditor, InitiatingParty initiatingParty, List<TransactionBatch> subBatches, boolean useBatchBooking, Dialect dialect);
 
     /**
      * Writes a PAIN.008.001.02 to the specified OutputStream. Will not close the stream.

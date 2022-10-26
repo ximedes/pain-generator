@@ -1,5 +1,7 @@
 package com.chessix.sepa.pain;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 
 /**
@@ -13,6 +15,10 @@ public class Mandate {
     public Mandate(String mandateId, Date signed) {
         setMandateId(mandateId);
         setSigned(signed);
+    }
+    public Mandate(String mandateId, LocalDate signed) {
+        setMandateId(mandateId);
+        setSigned(Date.from(signed.atStartOfDay(ZoneId.systemDefault()).toInstant()));
     }
 
     public String getMandateId() {
